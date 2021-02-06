@@ -19,17 +19,19 @@ var type = "Global"
 
 struct InfoManager {
 
-    let infoURL = "https://api.thevirustracker.com/free-api?"
+//    let infoURL = "https://api.thevirustracker.com/free-api?"
+    let infoURL = "https://corona.lmao.ninja/v2/"
     var delegate: InfoManagerDelegate?
     
     func FetchInfo (country: String) {
         if country == "**" {
             type = "Global"
-            performRequest(urlString: "\(infoURL)global=stats")
-            
+            //performRequest(urlString: "\(infoURL)global=stats")
+            performRequest(urlString: "\(infoURL)all?yesterday")
         } else {
              type = "Local"
-             performRequest(urlString: "\(infoURL)countryTotal=\(country)")
+             //performRequest(urlString: "\(infoURL)countryTotal=\(country)")
+            performRequest(urlString: "\(infoURL)countries/\(country)?yesterday&strict&query%20")
         }
     }
     
@@ -60,29 +62,47 @@ struct InfoManager {
         do {
             if type == "Global" {
                 let decoderData = try decoder.decode(GlobalData.self, from: infoData)
-
+                
                 let name = "Total Global"
-                let confirm = decoderData.results[0].total_cases
-                let deaths = decoderData.results[0].total_deaths
-                let recover = decoderData.results[0].total_recovered
-                let newCases = decoderData.results[0].total_new_cases_today
-                let newDeaths = decoderData.results[0].total_new_deaths_today
-                let actives = decoderData.results[0].total_active_cases
-                let serious = decoderData.results[0].total_serious_cases
+                let confirm = decoderData.cases
+                let deaths = decoderData.deaths
+                let recover = decoderData.recovered
+                let newCases = decoderData.todayCases
+                let newDeaths = decoderData.todayDeaths
+                let actives = decoderData.active
+                let serious = decoderData.critical
+// Old structure from thevirustracker
+//                let confirm = decoderData.results[0].total_cases
+//                let deaths = decoderData.results[0].total_deaths
+//                let recover = decoderData.results[0].total_recovered
+//                let newCases = decoderData.results[0].total_new_cases_today
+//                let newDeaths = decoderData.results[0].total_new_deaths_today
+//                let actives = decoderData.results[0].total_active_cases
+//                let serious = decoderData.results[0].total_serious_cases
                 let info = InfoModel(name: name, confirmed: confirm, deaths: deaths, recovered: recover, newCases: newCases, newDeaths: newDeaths, actives: actives, serious: serious)
+
                 return info
+            
                 
             } else {
                 let decoderData = try decoder.decode(InfoData.self, from: infoData)
 
-                let name = decoderData.countrydata[0].info.title
-                let confirm = decoderData.countrydata[0].total_cases
-                let deaths = decoderData.countrydata[0].total_deaths
-                let recover = decoderData.countrydata[0].total_recovered
-                let newCases = decoderData.countrydata[0].total_new_cases_today
-                let newDeaths = decoderData.countrydata[0].total_new_deaths_today
-                let actives = decoderData.countrydata[0].total_active_cases
-                let serious = decoderData.countrydata[0].total_serious_cases
+                let name = decoderData.country
+                let confirm = decoderData.cases
+                let deaths = decoderData.deaths
+                let recover = decoderData.recovered
+                let newCases = decoderData.todayCases //> 0 : decoderData.todayCases ?? 0
+                let newDeaths = decoderData.todayDeaths
+                let actives = decoderData.active
+                let serious = decoderData.critical
+//                let name = decoderData.countrydata[0].info.title
+//                let confirm = decoderData.countrydata[0].total_cases
+//                let deaths = decoderData.countrydata[0].total_deaths
+//                let recover = decoderData.countrydata[0].total_recovered
+//                let newCases = decoderData.countrydata[0].total_new_cases_today
+//                let newDeaths = decoderData.countrydata[0].total_new_deaths_today
+//                let actives = decoderData.countrydata[0].total_active_cases
+//                let serious = decoderData.countrydata[0].total_serious_cases
                 let info = InfoModel(name: name, confirmed: confirm, deaths: deaths, recovered: recover, newCases: newCases, newDeaths: newDeaths, actives: actives, serious: serious)
                 return info
             }
